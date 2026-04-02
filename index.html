@@ -12,7 +12,7 @@
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#fafafa 0%,#f3f4f6 100%);color:var(--text)}
-    .wrap{max-width:1100px;margin:34px auto;padding:0 18px}
+    .wrap{max-width:1180px;margin:34px auto;padding:0 18px}
     .hero{margin-bottom:18px}
     .hero h1{margin:0 0 8px;font-size:clamp(28px,4vw,42px);letter-spacing:-.03em}
     .hero p{margin:0;color:var(--muted)}
@@ -21,6 +21,7 @@
     h2{margin:0 0 14px;font-size:22px;letter-spacing:-.02em}
     h3{margin:0 0 12px;font-size:16px}
     .muted{color:var(--muted)}
+    .small{font-size:12px;color:var(--muted)}
     .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
     .tab{padding:11px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:700;color:var(--text)}
     .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -29,6 +30,7 @@
     .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
     .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
     .grid-6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
     label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
     input,select,textarea,button{width:100%;font:inherit;border-radius:14px;border:1px solid var(--line);background:#fff;color:var(--text);padding:12px 13px;outline:none}
     input:focus,select:focus,textarea:focus{border-color:#9ca3af;box-shadow:0 0 0 3px rgba(17,24,39,.06)}
@@ -50,21 +52,25 @@
     .summary-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
     .summary-item{background:#f9fafb;border:1px solid var(--line);border-radius:14px;padding:11px 12px;font-size:14px}
     .summary-item b{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+    .metric-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+    .metric{background:#f9fafb;border:1px solid var(--line);border-radius:16px;padding:14px}
+    .metric b{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    .metric span{font-size:22px;font-weight:800;letter-spacing:-.03em}
     .modal{position:fixed;inset:0;background:rgba(17,24,39,.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:1000}
     .modal.open{display:flex}
     .modal-card{width:min(760px,100%);background:#fff;border-radius:24px;border:1px solid var(--line);box-shadow:0 26px 80px rgba(0,0,0,.22);padding:22px}
     .modal-card h3{margin:0 0 6px;font-size:24px}
     .modal-card p{margin:0 0 16px;color:var(--muted)}
     .modal-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:18px}
-    @media (max-width:900px){.grid,.grid-3,.grid-6,.summary-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:560px){.grid,.grid-3,.grid-6,.summary-list{grid-template-columns:1fr}button{width:100%}}
+    @media (max-width:980px){.grid,.grid-3,.grid-6,.summary-list,.metric-row,.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:560px){.grid,.grid-3,.grid-6,.summary-list,.metric-row,.grid-2{grid-template-columns:1fr}button{width:100%}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="hero">
       <h1>Registro de Pruebas de Molino</h1>
-      <p>Producción crea la prueba. Calidad completa kilos, mallas y cierra la misma fila.</p>
+      <p>Producción crea la prueba. Calidad completa kilos, mallas y compara contra la mejor prueba y el objetivo.</p>
     </div>
 
     <div class="card">
@@ -90,6 +96,14 @@
         <p class="muted">Captura el número de prueba y los parámetros del proceso.</p>
         <div class="grid">
           <div><label for="p_prueba">Número de prueba</label><input id="p_prueba"></div>
+          <div>
+            <label for="p_producto">Producto</label>
+            <select id="p_producto">
+              <option value=""></option>
+              <option value="Estandar">Estandar</option>
+              <option value="Refino">Refino</option>
+            </select>
+          </div>
           <div><label for="p_proveedor">Proveedor</label><input id="p_proveedor"></div>
           <div><label for="p_operador">Quién hace la prueba</label><input id="p_operador"></div>
           <div><label for="p_mol">Malla molino</label><input id="p_mol"></div>
@@ -97,7 +111,8 @@
           <div><label for="p_vel">Velocidad</label><input id="p_vel"></div>
           <div><label for="p_apertura">Apertura</label><input id="p_apertura"></div>
           <div><label for="p_cang">Cangilones</label><input id="p_cang"></div>
-          <div><label for="p_flujo">Flujo</label>
+          <div>
+            <label for="p_flujo">Flujo</label>
             <select id="p_flujo">
               <option value=""></option>
               <option value="1/4">1/4</option>
@@ -118,7 +133,7 @@
     <div id="calidadPanel" class="panel">
       <div class="card">
         <h2>Calidad</h2>
-        <p class="muted">Primero kilos. Después mallas. Todo se guarda en la misma prueba.</p>
+        <p class="muted">Primero kilos y humedad. Después mallas. Todo se guarda en la misma prueba.</p>
         <div class="grid-3">
           <div><label for="q_pruebaBuscar">Número de prueba</label><input id="q_pruebaBuscar"></div>
           <div style="align-self:end"><button type="button" id="btnBuscar">Buscar prueba</button></div>
@@ -131,12 +146,14 @@
         </div>
 
         <div style="margin-top:16px">
-          <h3>Kilos</h3>
+          <h3>Kilos y humedad</h3>
           <div class="grid">
             <div><label for="q_mpKg">MP kg</label><input id="q_mpKg" type="number" step="0.01"></div>
             <div><label for="q_ptKg">PT kg</label><input id="q_ptKg" type="number" step="0.01"></div>
             <div><label for="q_finosKg">Finos kg</label><input id="q_finosKg" type="number" step="0.01"></div>
             <div><label for="q_granoKg">Grano kg</label><input id="q_granoKg" type="number" step="0.01"></div>
+            <div><label for="q_humedadMT">Porcentaje humedad MT</label><input id="q_humedadMT" type="number" step="0.01"></div>
+            <div><label for="q_humedadPT">Porcentaje humedad PT</label><input id="q_humedadPT" type="number" step="0.01"></div>
             <div><label for="q_finosPct">Finos %</label><input id="q_finosPct" readonly></div>
             <div><label for="q_granoPct">Grano %</label><input id="q_granoPct" readonly></div>
             <div><label for="q_balanceKg">Diferencia balance kg</label><input id="q_balanceKg" readonly></div>
@@ -155,23 +172,35 @@
           </div>
           <div class="grid" style="margin-top:12px">
             <div><label for="q_sumaMallas">Suma mallas %</label><input id="q_sumaMallas" readonly></div>
+            <div><label for="q_cumplimientoPct">Cumplimiento %</label><input id="q_cumplimientoPct" readonly></div>
             <div><label for="q_analista">Analista calidad</label><input id="q_analista"></div>
-            <div><label for="q_estadoVisual">Estado visual</label>
-              <select id="q_estadoVisual">
-                <option value=""></option>
-                <option>Normal</option>
-                <option>Talco</option>
-                <option>Con grano alto</option>
-                <option>Con estática</option>
-              </select>
-            </div>
+            <div><label for="q_estadoVisual">Estado visual</label><input id="q_estadoVisual"></div>
           </div>
         </div>
 
         <div class="card" style="margin-top:16px;padding:14px">
-          <h3>Comparación automática</h3>
+          <h3>Comparación actual vs objetivo</h3>
           <table id="compareTable">
-            <thead><tr><th>Malla</th><th>Especificación</th><th>Prueba</th><th>Diferencia absoluta</th></tr></thead>
+            <thead><tr><th>Malla</th><th>Especificación</th><th>Prueba actual</th><th>Diferencia absoluta</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="card" style="margin-top:16px;padding:14px">
+          <h3>Mejor prueba encontrada</h3>
+          <div class="metric-row">
+            <div class="metric"><b>Número de prueba</b><span id="bestPrueba">-</span></div>
+            <div class="metric"><b>Producto</b><span id="bestProducto">-</span></div>
+            <div class="metric"><b>Cumplimiento</b><span id="bestCumplimiento">-</span></div>
+            <div class="metric"><b>Desviación total</b><span id="bestDesviacion">-</span></div>
+          </div>
+          <div class="small" style="margin-top:10px">La mejor prueba se calcula con la especificación actual.</div>
+        </div>
+
+        <div class="card" style="margin-top:16px;padding:14px">
+          <h3>Comparación: prueba actual, mejor prueba y objetivo</h3>
+          <table id="bestCompareTable">
+            <thead><tr><th>Malla</th><th>Objetivo</th><th>Prueba actual</th><th>Mejor prueba</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -208,6 +237,7 @@
     const SHEET_NAME = 'Pruebas';
     const $ = (id) => document.getElementById(id);
     let confirmAction = null;
+    let cachedBestRow = null;
 
     document.querySelectorAll('.tab').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -251,29 +281,125 @@
       closeModal();
     });
 
-    function calcularCalidad(){
+    function getObjective(){
+      return {
+        m25:num('esp25'),
+        m30:num('esp30'),
+        m40:num('esp40'),
+        m60:num('esp60'),
+        m100:num('esp100'),
+        fondo:num('espFondo')
+      };
+    }
+
+    function currentTestData(){
+      return {
+        m25:num('q_m25'),
+        m30:num('q_m30'),
+        m40:num('q_m40'),
+        m60:num('q_m60'),
+        m100:num('q_m100'),
+        fondo:num('q_fondo')
+      };
+    }
+
+    function computeDeviationAndCompliance(test, objective){
+      const diffs = [
+        Math.abs((test.m25||0) - objective.m25),
+        Math.abs((test.m30||0) - objective.m30),
+        Math.abs((test.m40||0) - objective.m40),
+        Math.abs((test.m60||0) - objective.m60),
+        Math.abs((test.m100||0) - objective.m100),
+        Math.abs((test.fondo||0) - objective.fondo)
+      ];
+      const totalAbs = diffs.reduce((a,b)=>a+b,0);
+      const cumplimiento = Math.max(0, 100 - (totalAbs / 2));
+      return { totalAbs: Number(totalAbs.toFixed(2)), cumplimiento: Number(cumplimiento.toFixed(2)) };
+    }
+
+    async function fetchBestTest(){
+      const obj = getObjective();
+      const qs = new URLSearchParams({
+        action:'mejor_prueba',
+        sheetName:SHEET_NAME,
+        esp25:String(obj.m25),
+        esp30:String(obj.m30),
+        esp40:String(obj.m40),
+        esp60:String(obj.m60),
+        esp100:String(obj.m100),
+        espFondo:String(obj.fondo)
+      });
+      const res = await fetch(`${APPS_SCRIPT_URL}?${qs.toString()}`);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'No se pudo obtener la mejor prueba');
+      return data.row || null;
+    }
+
+    function renderBestComparison(bestRow){
+      const objective = getObjective();
+      const current = currentTestData();
+      const best = bestRow ? {
+        m25:Number(bestRow.m25||0),
+        m30:Number(bestRow.m30||0),
+        m40:Number(bestRow.m40||0),
+        m60:Number(bestRow.m60||0),
+        m100:Number(bestRow.m100||0),
+        fondo:Number(bestRow.fondo||0)
+      } : {m25:0,m30:0,m40:0,m60:0,m100:0,fondo:0};
+
+      $('bestPrueba').textContent = bestRow ? (bestRow.prueba || '-') : '-';
+      $('bestProducto').textContent = bestRow ? (bestRow.producto || '-') : '-';
+      $('bestCumplimiento').textContent = bestRow ? `${Number(bestRow.cumplimientoPct || 0).toFixed(2)}%` : '-';
+      $('bestDesviacion').textContent = bestRow ? Number(bestRow.desviacionTotal || 0).toFixed(2) : '-';
+
+      const tbody = $('bestCompareTable').querySelector('tbody');
+      tbody.innerHTML = '';
+      const rows = [
+        ['25', objective.m25, current.m25, best.m25],
+        ['30', objective.m30, current.m30, best.m30],
+        ['40', objective.m40, current.m40, best.m40],
+        ['60', objective.m60, current.m60, best.m60],
+        ['100', objective.m100, current.m100, best.m100],
+        ['Fondo', objective.fondo, current.fondo, best.fondo]
+      ];
+      rows.forEach(([m, o, c, b]) => {
+        const currentCloser = Math.abs(c-o) <= Math.abs(b-o);
+        tbody.innerHTML += `<tr>
+          <td>${m}</td>
+          <td>${o}</td>
+          <td class="${currentCloser ? 'better' : ''}">${c}</td>
+          <td class="${!currentCloser ? 'better' : ''}">${b}</td>
+        </tr>`;
+      });
+    }
+
+    function calcularCalidadLocal(){
       const mp = num('q_mpKg'), pt = num('q_ptKg'), finos = num('q_finosKg'), grano = num('q_granoKg');
       $('q_finosPct').value = mp ? ((finos/mp)*100).toFixed(2) : '';
       $('q_granoPct').value = mp ? ((grano/mp)*100).toFixed(2) : '';
       $('q_balanceKg').value = (mp - (pt + finos + grano)).toFixed(2);
       $('q_sumaMallas').value = (num('q_m25') + num('q_m30') + num('q_m40') + num('q_m60') + num('q_m100') + num('q_fondo')).toFixed(2);
 
+      const objective = getObjective();
+      const current = currentTestData();
+      const calc = computeDeviationAndCompliance(current, objective);
+      $('q_cumplimientoPct').value = calc.cumplimiento.toFixed(2);
+
       const rows = [
-        ['25', num('esp25'), num('q_m25')],
-        ['30', num('esp30'), num('q_m30')],
-        ['40', num('esp40'), num('q_m40')],
-        ['60', num('esp60'), num('q_m60')],
-        ['100', num('esp100'), num('q_m100')],
-        ['Fondo', num('espFondo'), num('q_fondo')]
+        ['25', objective.m25, current.m25],
+        ['30', objective.m30, current.m30],
+        ['40', objective.m40, current.m40],
+        ['60', objective.m60, current.m60],
+        ['100', objective.m100, current.m100],
+        ['Fondo', objective.fondo, current.fondo]
       ];
       const tbody = document.querySelector('#compareTable tbody');
       tbody.innerHTML = '';
       rows.forEach(([malla, esp, real]) => {
         const diff = Math.abs(esp - real);
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${malla}</td><td>${esp}</td><td>${real}</td><td class="${diff <= 3 ? 'better' : 'worse'}">${diff.toFixed(2)}</td>`;
-        tbody.appendChild(tr);
+        tbody.innerHTML += `<tr><td>${malla}</td><td>${esp}</td><td>${real}</td><td class="${diff <= 3 ? 'better' : 'worse'}">${diff.toFixed(2)}</td></tr>`;
       });
+      return calc;
     }
 
     async function postData(payload){
@@ -291,6 +417,7 @@
       clearMsg('statusProd');
       const items = [
         ['Número de prueba', $('p_prueba').value.trim()],
+        ['Producto', $('p_producto').value],
         ['Proveedor', $('p_proveedor').value],
         ['Quién hace la prueba', $('p_operador').value],
         ['Malla molino', $('p_mol').value],
@@ -307,6 +434,7 @@
             sheetName:SHEET_NAME,
             fecha:new Date().toISOString().slice(0,10),
             prueba:$('p_prueba').value.trim(),
+            producto:$('p_producto').value,
             proveedor:$('p_proveedor').value,
             operadorProduccion:$('p_operador').value,
             mol:$('p_mol').value,
@@ -335,30 +463,63 @@
         if (!data.ok) throw new Error(data.error || 'No encontrada');
         const r = data.row;
         $('previewPrueba').style.display = 'block';
-        $('previewTexto').innerHTML = `<b>Prueba:</b> ${r.prueba || ''} | <b>Proveedor:</b> ${r.proveedor || ''} | <b>Quién hizo la prueba:</b> ${r.operadorProduccion || ''} | <b>Malla molino:</b> ${r.mol || ''} | <b>Insertos:</b> ${r.insertos || ''} | <b>Velocidad:</b> ${r.vel || ''} | <b>Apertura:</b> ${r.caida || ''} | <b>Cangilones:</b> ${r.cang || ''} | <b>Flujo:</b> ${r.flujo || ''} | <b>Estado:</b> ${r.estado || ''}`;
+        $('previewTexto').innerHTML = `<b>Prueba:</b> ${r.prueba || ''} | <b>Producto:</b> ${r.producto || ''} | <b>Proveedor:</b> ${r.proveedor || ''} | <b>Quién hizo la prueba:</b> ${r.operadorProduccion || ''} | <b>Malla molino:</b> ${r.mol || ''} | <b>Insertos:</b> ${r.insertos || ''} | <b>Velocidad:</b> ${r.vel || ''} | <b>Apertura:</b> ${r.caida || ''} | <b>Cangilones:</b> ${r.cang || ''} | <b>Flujo:</b> ${r.flujo || ''} | <b>Estado:</b> ${r.estado || ''}`;
         $('q_mpKg').value = r.mpKg || '';
+        $('q_ptKg').value = r.ptKg || '';
+        $('q_finosKg').value = r.finosKg || '';
+        $('q_granoKg').value = r.granoKg || '';
+        $('q_humedadMT').value = r.humedadMT || '';
+        $('q_humedadPT').value = r.humedadPT || '';
+        $('q_m25').value = r.m25 || '';
+        $('q_m30').value = r.m30 || '';
+        $('q_m40').value = r.m40 || '';
+        $('q_m60').value = r.m60 || '';
+        $('q_m100').value = r.m100 || '';
+        $('q_fondo').value = r.fondo || '';
+        $('q_estadoVisual').value = r.estadoVisual || '';
+        $('q_obs').value = r.obsCalidad || '';
+        $('q_analista').value = r.analistaCalidad || '';
+        calcularCalidadLocal();
+        try{
+          cachedBestRow = await fetchBestTest();
+          renderBestComparison(cachedBestRow);
+        }catch(_){}
         msg('statusCalidad', 'Prueba encontrada.', true);
       }catch(e){
         msg('statusCalidad', 'No se pudo encontrar la prueba: ' + e.message, false);
       }
     });
 
-    $('btnCalcularCalidad').addEventListener('click', () => {
+    $('btnCalcularCalidad').addEventListener('click', async () => {
       clearMsg('statusCalidad');
-      calcularCalidad();
+      calcularCalidadLocal();
+      try{
+        cachedBestRow = await fetchBestTest();
+        renderBestComparison(cachedBestRow);
+      }catch(e){
+        msg('statusCalidad', 'Cálculo listo, pero no se pudo traer la mejor prueba: ' + e.message, false);
+        return;
+      }
       msg('statusCalidad', 'Cálculo listo.', true);
     });
 
-    $('btnCompletar').addEventListener('click', () => {
+    $('btnCompletar').addEventListener('click', async () => {
       clearMsg('statusCalidad');
-      calcularCalidad();
+      const calc = calcularCalidadLocal();
+      try{
+        cachedBestRow = await fetchBestTest();
+        renderBestComparison(cachedBestRow);
+      }catch(_){}
+
       const items = [
         ['Número de prueba', $('q_pruebaBuscar').value.trim()],
         ['MP kg', $('q_mpKg').value],
         ['PT kg', $('q_ptKg').value],
         ['Finos kg', $('q_finosKg').value],
         ['Grano kg', $('q_granoKg').value],
-        ['Finos %', $('q_finosPct').value],
+        ['Humedad MT %', $('q_humedadMT').value],
+        ['Humedad PT %', $('q_humedadPT').value],
+        ['Cumplimiento %', calc.cumplimiento.toFixed(2)],
         ['M25', $('q_m25').value],
         ['M30', $('q_m30').value],
         ['M40', $('q_m40').value],
@@ -366,6 +527,7 @@
         ['M100', $('q_m100').value],
         ['Fondo', $('q_fondo').value]
       ];
+
       openModal('Confirmar calidad', items, async () => {
         try{
           await postData({
@@ -376,6 +538,8 @@
             ptKg:$('q_ptKg').value,
             finosKg:$('q_finosKg').value,
             granoKg:$('q_granoKg').value,
+            humedadMT:$('q_humedadMT').value,
+            humedadPT:$('q_humedadPT').value,
             finosPct:$('q_finosPct').value,
             granoPct:$('q_granoPct').value,
             balanceKg:$('q_balanceKg').value,
@@ -386,10 +550,14 @@
             m100:$('q_m100').value,
             fondo:$('q_fondo').value,
             sumaMallas:$('q_sumaMallas').value,
+            cumplimientoPct:$('q_cumplimientoPct').value,
+            desviacionTotal:calc.totalAbs.toFixed(2),
             analistaCalidad:$('q_analista').value,
             estadoVisual:$('q_estadoVisual').value,
             obsCalidad:$('q_obs').value
           });
+          cachedBestRow = await fetchBestTest().catch(() => cachedBestRow);
+          renderBestComparison(cachedBestRow);
           msg('statusCalidad', 'Calidad guardada correctamente.', true);
         }catch(e){
           msg('statusCalidad', 'No se pudo guardar calidad: ' + e.message, false);
@@ -398,14 +566,17 @@
     });
 
     $('btnLimpiarProd').addEventListener('click', () => {
-      ['p_prueba','p_proveedor','p_operador','p_mol','p_insertos','p_vel','p_apertura','p_cang','p_flujo'].forEach(id => $(id).value = '');
+      ['p_prueba','p_producto','p_proveedor','p_operador','p_mol','p_insertos','p_vel','p_apertura','p_cang','p_flujo'].forEach(id => $(id).value = '');
       clearMsg('statusProd');
     });
 
     $('btnLimpiarCalidad').addEventListener('click', () => {
-      ['q_pruebaBuscar','q_mpKg','q_ptKg','q_finosKg','q_granoKg','q_finosPct','q_granoPct','q_balanceKg','q_m25','q_m30','q_m40','q_m60','q_m100','q_fondo','q_sumaMallas','q_analista','q_estadoVisual','q_obs'].forEach(id => $(id).value = '');
+      ['q_pruebaBuscar','q_mpKg','q_ptKg','q_finosKg','q_granoKg','q_humedadMT','q_humedadPT','q_finosPct','q_granoPct','q_balanceKg','q_m25','q_m30','q_m40','q_m60','q_m100','q_fondo','q_sumaMallas','q_cumplimientoPct','q_analista','q_estadoVisual','q_obs'].forEach(id => $(id).value = '');
       $('previewPrueba').style.display = 'none';
       document.querySelector('#compareTable tbody').innerHTML = '';
+      document.querySelector('#bestCompareTable tbody').innerHTML = '';
+      ['bestPrueba','bestProducto','bestCumplimiento','bestDesviacion'].forEach(id => $(id).textContent = '-');
+      cachedBestRow = null;
       clearMsg('statusCalidad');
     });
   </script>
