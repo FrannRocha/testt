@@ -6,91 +6,188 @@
   <title>Registro de Pruebas de Molino</title>
   <style>
     :root{
-      --bg:#f6f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280;
-      --border:#d1d5db; --accent:#2563eb; --ok:#e8f7e8; --bad:#fdeaea;
+      --bg:#f5f5f7;
+      --card:#ffffff;
+      --text:#111111;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --accent:#111111;
+      --soft:#f9fafb;
+      --ok:#e8f7e8;
+      --bad:#fdeaea;
+      --shadow:0 10px 30px rgba(0,0,0,.06);
+      --radius:20px;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-    h1,h2,h3{margin:0 0 12px}
+    body{
+      margin:0;
+      font-family:Inter, Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#fafafa 0%,#f3f4f6 100%);
+      color:var(--text);
+    }
+    .wrap{max-width:1100px;margin:32px auto;padding:0 18px}
+    .hero{
+      margin-bottom:20px;
+    }
+    .hero h1{
+      margin:0 0 8px;
+      font-size:clamp(28px,4vw,42px);
+      letter-spacing:-.03em;
+    }
+    .hero p{margin:0;color:var(--muted);font-size:15px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:20px;
+      margin-bottom:18px;
+    }
+    .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+    .tab{
+      border:1px solid var(--border);
+      background:#fff;
+      color:var(--text);
+      border-radius:999px;
+      padding:11px 16px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .tab.active{
+      background:#111111;
+      color:#fff;
+      border-color:#111111;
+    }
+    .panel{display:none}
+    .panel.active{display:block}
+    h2{margin:0 0 14px;font-size:21px}
+    h3{margin:0 0 12px;font-size:16px}
     .muted{color:var(--muted)}
-    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-    .grid-6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
-    label{display:block;font-size:14px;font-weight:700;margin-bottom:6px}
+    .small{font-size:12px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .grid-6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+    label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
     input,select,textarea,button{
-      width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font:inherit;background:#fff
+      width:100%;
+      font:inherit;
+      padding:12px 13px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#fff;
+      color:var(--text);
+      outline:none;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color:#9ca3af;
+      box-shadow:0 0 0 3px rgba(17,17,17,.06);
     }
     textarea{min-height:90px;resize:vertical}
     .row{display:flex;gap:10px;flex-wrap:wrap}
-    button{cursor:pointer;background:var(--accent);color:#fff;border:none;font-weight:700;width:auto;min-width:180px}
-    button.secondary{background:#111827}
-    button.ghost{background:#fff;color:#111827;border:1px solid var(--border)}
-    .status{padding:10px 12px;border-radius:10px;font-weight:700;display:none}
+    button{
+      width:auto;
+      min-width:180px;
+      border:none;
+      cursor:pointer;
+      background:#111111;
+      color:#fff;
+      font-weight:700;
+      box-shadow:var(--shadow);
+    }
+    button.secondary{background:#374151}
+    button.ghost{
+      background:#fff;
+      color:#111111;
+      border:1px solid var(--border);
+      box-shadow:none;
+    }
+    .status{padding:12px 14px;border-radius:14px;font-weight:700;display:none;margin-top:14px}
     .status.ok{display:block;background:var(--ok);color:#166534}
     .status.bad{display:block;background:var(--bad);color:#991b1b}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-    .tab{padding:10px 14px;border-radius:999px;border:1px solid var(--border);background:#fff;cursor:pointer;font-weight:700}
-    .tab.active{background:#111827;color:#fff;border-color:#111827}
-    .panel{display:none}
-    .panel.active{display:block}
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#f3f4f6;
+      color:#374151;
+      font-size:12px;
+      font-weight:700;
+      margin-bottom:10px;
+    }
+    .preview{
+      background:var(--soft);
+      border:1px dashed var(--border);
+      border-radius:16px;
+      padding:14px;
+      margin-top:12px;
+    }
     table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
-    th,td{border:1px solid var(--border);padding:8px;text-align:center}
-    th{background:#f3f4f6}
-    .better{background:var(--ok)}
-    .worse{background:var(--bad)}
-    .small{font-size:12px;color:var(--muted)}
-    .preview{background:#f9fafb;border:1px dashed var(--border);border-radius:12px;padding:12px}
+    th,td{border:1px solid var(--border);padding:9px;text-align:center}
+    th{background:#f9fafb}
+    .better{background:#ecfdf5}
+    .worse{background:#fef2f2}
+    .summary-list{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-top:8px;
+    }
+    .summary-item{
+      background:#f9fafb;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:10px 12px;
+      font-size:14px;
+    }
+    .summary-item b{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(17,17,17,.46);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:1000;
+    }
+    .modal.open{display:flex}
+    .modal-card{
+      width:min(760px,100%);
+      background:#fff;
+      border-radius:22px;
+      border:1px solid var(--border);
+      box-shadow:0 20px 60px rgba(0,0,0,.18);
+      padding:22px;
+    }
+    .modal-card h3{font-size:22px;margin-bottom:6px}
+    .modal-card p{margin:0 0 16px;color:var(--muted)}
+    .modal-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:18px}
     @media (max-width:900px){
-      .grid,.grid-3,.grid-6{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .grid,.grid-3,.grid-6,.summary-list{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
     @media (max-width:560px){
-      .grid,.grid-3,.grid-6{grid-template-columns:1fr}
+      .grid,.grid-3,.grid-6,.summary-list{grid-template-columns:1fr}
       button{width:100%}
+      .modal-actions{justify-content:stretch}
     }
   </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Registro de Pruebas de Molino</h1>
-  <p class="muted">Una sola página. Producción crea la prueba y Calidad la completa en la misma fila de Google Sheets.</p>
+  <div class="hero">
+    <h1>Registro de Pruebas de Molino</h1>
+    <p>Producción crea la prueba. Calidad completa kilos, mallas y cierra la misma fila.</p>
+  </div>
 
   <div class="card">
-    <h2>Conexión</h2>
-    <div class="grid">
-      <div>
-        <label for="scriptUrl">URL de Apps Script</label>
-        <input id="scriptUrl" placeholder="Pega aquí la URL que termina en /exec">
-      </div>
-      <div>
-        <label for="sheetName">Nombre de hoja</label>
-        <input id="sheetName" value="Pruebas">
-      </div>
-      <div>
-        <label for="esp25">Especificación M25</label>
-        <input id="esp25" type="number" step="0.01" value="0">
-      </div>
-      <div>
-        <label for="esp30">Especificación M30</label>
-        <input id="esp30" type="number" step="0.01" value="0">
-      </div>
-      <div>
-        <label for="esp40">Especificación M40</label>
-        <input id="esp40" type="number" step="0.01" value="6.5">
-      </div>
-      <div>
-        <label for="esp60">Especificación M60</label>
-        <input id="esp60" type="number" step="0.01" value="71">
-      </div>
-      <div>
-        <label for="esp100">Especificación M100</label>
-        <input id="esp100" type="number" step="0.01" value="19">
-      </div>
-      <div>
-        <label for="espFondo">Especificación Fondo</label>
-        <input id="espFondo" type="number" step="0.01" value="3.5">
-      </div>
+    <span class="pill">Especificación objetivo</span>
+    <div class="grid-6">
+      <div><label for="esp25">M25</label><input id="esp25" type="number" step="0.01" value="0"></div>
+      <div><label for="esp30">M30</label><input id="esp30" type="number" step="0.01" value="0"></div>
+      <div><label for="esp40">M40</label><input id="esp40" type="number" step="0.01" value="6.5"></div>
+      <div><label for="esp60">M60</label><input id="esp60" type="number" step="0.01" value="71"></div>
+      <div><label for="esp100">M100</label><input id="esp100" type="number" step="0.01" value="19"></div>
+      <div><label for="espFondo">Fondo</label><input id="espFondo" type="number" step="0.01" value="3.5"></div>
     </div>
   </div>
 
@@ -101,56 +198,52 @@
 
   <div id="produccionPanel" class="panel active">
     <div class="card">
-      <h2>Producción crea la prueba</h2>
+      <h2>Producción</h2>
+      <p class="muted">Solo captura el número de prueba y los parámetros del proceso.</p>
       <div class="grid">
-        <div><label for="p_fecha">Fecha</label><input id="p_fecha" type="date"></div>
-        <div><label for="p_prueba">Número de prueba</label><input id="p_prueba" placeholder="Ejemplo: 100"></div>
-        <div><label for="p_cliente">Cliente</label><input id="p_cliente"></div>
-        <div><label for="p_producto">Producto</label><input id="p_producto" value="Azúcar refinada"></div>
-        <div><label for="p_proveedor">Proveedor</label><input id="p_proveedor" value="CASSA"></div>
-        <div><label for="p_operador">Operador producción</label><input id="p_operador"></div>
-        <div><label for="p_mol">Malla molino</label><input id="p_mol" placeholder="Ejemplo: 2.0 mm"></div>
+        <div><label for="p_prueba">Número de prueba</label><input id="p_prueba"></div>
+        <div><label for="p_mol">Malla molino</label><input id="p_mol"></div>
         <div><label for="p_insertos">Insertos</label><input id="p_insertos"></div>
-        <div><label for="p_vel">Velocidad molino</label><input id="p_vel" placeholder="Ejemplo: 30 Hz"></div>
-        <div><label for="p_caida">Caída de molino</label><input id="p_caida"></div>
-        <div><label for="p_cang">Cangilones</label><input id="p_cang" placeholder="Ejemplo: 18 Hz"></div>
-        <div><label for="p_flujo">Flujo</label><input id="p_flujo" placeholder="Ejemplo: 0.2 t/h"></div>
-        <div><label for="p_criba">Criba</label><input id="p_criba"></div>
-        <div><label for="p_mp">Materia prima kg</label><input id="p_mp" type="number" step="0.01" value="150"></div>
+        <div><label for="p_vel">Velocidad</label><input id="p_vel"></div>
+        <div><label for="p_apertura">Apertura</label><input id="p_apertura"></div>
+        <div><label for="p_cang">Cangilones</label><input id="p_cang"></div>
+        <div>
+          <label for="p_flujo">Flujo</label>
+          <select id="p_flujo">
+            <option value=""></option>
+            <option value="1/4">1/4</option>
+            <option value="1/2">1/2</option>
+            <option value="3/4">3/4</option>
+            <option value="1">1</option>
+          </select>
+        </div>
       </div>
-      <div style="margin-top:12px">
-        <label for="p_obs">Observaciones de producción</label>
-        <textarea id="p_obs" placeholder="Ejemplo: sin pegado, salida caliente, estática, etc."></textarea>
+      <div class="row" style="margin-top:18px">
+        <button type="button" id="btnCrear">Subir producción</button>
+        <button type="button" class="ghost" id="btnLimpiarProd">Limpiar</button>
       </div>
-      <div class="row" style="margin-top:16px">
-        <button type="button" id="btnCrear">Crear prueba</button>
-        <button type="button" class="ghost" id="btnLimpiarProd">Limpiar producción</button>
-      </div>
-      <div id="statusProd" class="status" style="margin-top:14px"></div>
+      <div id="statusProd" class="status"></div>
     </div>
   </div>
 
   <div id="calidadPanel" class="panel">
     <div class="card">
-      <h2>Calidad completa la prueba</h2>
+      <h2>Calidad</h2>
+      <p class="muted">Primero kilos. Después mallas. Todo se guarda en la misma prueba.</p>
+
       <div class="grid-3">
-        <div>
-          <label for="q_pruebaBuscar">Número de prueba</label>
-          <input id="q_pruebaBuscar" placeholder="Ejemplo: 100">
-        </div>
-        <div style="align-self:end">
-          <button type="button" id="btnBuscar">Buscar prueba</button>
-        </div>
+        <div><label for="q_pruebaBuscar">Número de prueba</label><input id="q_pruebaBuscar"></div>
+        <div style="align-self:end"><button type="button" id="btnBuscar">Buscar prueba</button></div>
         <div></div>
       </div>
 
-      <div id="previewPrueba" class="preview" style="margin-top:14px;display:none">
-        <h3>Datos traídos de Producción</h3>
+      <div id="previewPrueba" class="preview" style="display:none">
+        <h3>Resumen de Producción</h3>
         <div id="previewTexto" class="muted"></div>
       </div>
 
       <div style="margin-top:16px">
-        <h3>Primero: resumen de kilos</h3>
+        <h3>Kilos</h3>
         <div class="grid">
           <div><label for="q_mpKg">MP kg</label><input id="q_mpKg" type="number" step="0.01"></div>
           <div><label for="q_ptKg">PT kg</label><input id="q_ptKg" type="number" step="0.01"></div>
@@ -163,7 +256,7 @@
       </div>
 
       <div style="margin-top:16px">
-        <h3>Después: mallas</h3>
+        <h3>Mallas</h3>
         <div class="grid-6">
           <div><label for="q_m25">M25</label><input id="q_m25" type="number" step="0.01"></div>
           <div><label for="q_m30">M30</label><input id="q_m30" type="number" step="0.01"></div>
@@ -175,9 +268,10 @@
         <div class="grid" style="margin-top:12px">
           <div><label for="q_sumaMallas">Suma mallas %</label><input id="q_sumaMallas" readonly></div>
           <div><label for="q_analista">Analista calidad</label><input id="q_analista"></div>
-          <div><label for="q_estadoVisual">Estado visual</label>
+          <div>
+            <label for="q_estadoVisual">Estado visual</label>
             <select id="q_estadoVisual">
-              <option value="">Selecciona</option>
+              <option value=""></option>
               <option>Normal</option>
               <option>Talco</option>
               <option>Con grano alto</option>
@@ -198,30 +292,48 @@
       </div>
 
       <div style="margin-top:12px">
-        <label for="q_obs">Observaciones de calidad</label>
-        <textarea id="q_obs" placeholder="Ejemplo: mejoró M60, finos altos, no cumple, etc."></textarea>
+        <label for="q_obs">Observaciones</label>
+        <textarea id="q_obs"></textarea>
       </div>
 
-      <div class="row" style="margin-top:16px">
+      <div class="row" style="margin-top:18px">
         <button type="button" id="btnCalcularCalidad">Calcular</button>
-        <button type="button" class="secondary" id="btnCompletar">Guardar calidad</button>
-        <button type="button" class="ghost" id="btnLimpiarCalidad">Limpiar calidad</button>
+        <button type="button" class="secondary" id="btnCompletar">Subir calidad</button>
+        <button type="button" class="ghost" id="btnLimpiarCalidad">Limpiar</button>
       </div>
-      <div id="statusCalidad" class="status" style="margin-top:14px"></div>
+      <div id="statusCalidad" class="status"></div>
+    </div>
+  </div>
+</div>
+
+<div id="confirmModal" class="modal">
+  <div class="modal-card">
+    <h3 id="modalTitle">Confirmar</h3>
+    <p>Revisa este resumen antes de subir.</p>
+    <div id="modalSummary" class="summary-list"></div>
+    <div class="modal-actions">
+      <button type="button" class="ghost" id="btnCancelModal">Cancelar</button>
+      <button type="button" id="btnConfirmModal">Confirmar</button>
     </div>
   </div>
 </div>
 
 <script>
-const $ = (id) => document.getElementById(id);
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7ZqccyJ9s_l2r37zifBzgHpubN-crb-kkEvU-87il2unYt9EF1MAKgh7FrWJaXkfv9Q/exec';
+const SHEET_NAME = 'Pruebas';
 
-function hoyISO(){
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const dd = String(d.getDate()).padStart(2,'0');
-  return `${yyyy}-${mm}-${dd}`;
-}
+const $ = (id) => document.getElementById(id);
+let confirmAction = null;
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+    btn.classList.add('active');
+    $(btn.dataset.panel).classList.add('active');
+  });
+});
+
 function num(id){
   const v = ($(id).value || '').toString().trim().replace(',', '.');
   return v === '' ? 0 : Number(v);
@@ -236,14 +348,24 @@ function clearMsg(id){
   el.textContent = '';
   el.className = 'status';
 }
-
-document.querySelectorAll('.tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
-    btn.classList.add('active');
-    $(btn.dataset.panel).classList.add('active');
-  });
+function renderSummary(items){
+  const box = $('modalSummary');
+  box.innerHTML = items.map(([k,v]) => `<div class="summary-item"><b>${k}</b>${v === '' ? '-' : v}</div>`).join('');
+}
+function openModal(title, items, action){
+  $('modalTitle').textContent = title;
+  renderSummary(items);
+  confirmAction = action;
+  $('confirmModal').classList.add('open');
+}
+function closeModal(){
+  $('confirmModal').classList.remove('open');
+  confirmAction = null;
+}
+$('btnCancelModal').addEventListener('click', closeModal);
+$('btnConfirmModal').addEventListener('click', async () => {
+  if (confirmAction) await confirmAction();
+  closeModal();
 });
 
 function calcularCalidad(){
@@ -256,8 +378,8 @@ function calcularCalidad(){
   $('q_granoPct').value = mp ? ((grano/mp)*100).toFixed(2) : '';
   $('q_balanceKg').value = (mp - (pt + finos + grano)).toFixed(2);
 
-  const sumaM = num('q_m25') + num('q_m30') + num('q_m40') + num('q_m60') + num('q_m100') + num('q_fondo');
-  $('q_sumaMallas').value = sumaM.toFixed(2);
+  const suma = num('q_m25') + num('q_m30') + num('q_m40') + num('q_m60') + num('q_m100') + num('q_fondo');
+  $('q_sumaMallas').value = suma.toFixed(2);
 
   const rows = [
     ['25', num('esp25'), num('q_m25')],
@@ -276,67 +398,58 @@ function calcularCalidad(){
     tbody.appendChild(tr);
   });
 }
-$('btnCalcularCalidad').addEventListener('click', () => {
-  clearMsg('statusCalidad');
-  calcularCalidad();
-  msg('statusCalidad', 'Listo. Ya se calcularon kilos, porcentajes y comparación.', true);
-});
 
-function scriptUrl(){
-  return $('scriptUrl').value.trim();
-}
-function sheetName(){
-  return $('sheetName').value.trim() || 'Pruebas';
+async function postData(payload){
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || 'No se pudo guardar');
+  return data;
 }
 
-$('btnCrear').addEventListener('click', async () => {
+$('btnCrear').addEventListener('click', () => {
   clearMsg('statusProd');
-  if (!scriptUrl()) { msg('statusProd', 'Falta la URL /exec de Apps Script.', false); return; }
-  if (!$('p_prueba').value.trim()) { msg('statusProd', 'Falta número de prueba.', false); return; }
-
-  const payload = {
-    action: 'crear_prueba',
-    sheetName: sheetName(),
-    fecha: $('p_fecha').value,
-    prueba: $('p_prueba').value.trim(),
-    cliente: $('p_cliente').value,
-    producto: $('p_producto').value,
-    proveedor: $('p_proveedor').value,
-    operadorProduccion: $('p_operador').value,
-    mol: $('p_mol').value,
-    insertos: $('p_insertos').value,
-    vel: $('p_vel').value,
-    caida: $('p_caida').value,
-    cang: $('p_cang').value,
-    flujo: $('p_flujo').value,
-    criba: $('p_criba').value,
-    mpKg: $('p_mp').value,
-    obsProduccion: $('p_obs').value
-  };
-
-  try {
-    const res = await fetch(scriptUrl(), {
-      method: 'POST',
-      headers: {'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || 'No se pudo crear');
-    msg('statusProd', 'Prueba creada. Ya puede entrar Calidad con ese número.', true);
-    $('q_pruebaBuscar').value = $('p_prueba').value.trim();
-  } catch (e) {
-    msg('statusProd', 'No se pudo crear la prueba: ' + e.message, false);
-  }
+  const items = [
+    ['Número de prueba', $('p_prueba').value.trim()],
+    ['Malla molino', $('p_mol').value],
+    ['Insertos', $('p_insertos').value],
+    ['Velocidad', $('p_vel').value],
+    ['Apertura', $('p_apertura').value],
+    ['Cangilones', $('p_cang').value],
+    ['Flujo', $('p_flujo').value]
+  ];
+  openModal('Confirmar producción', items, async () => {
+    try{
+      const payload = {
+        action: 'crear_prueba',
+        sheetName: SHEET_NAME,
+        fecha: new Date().toISOString().slice(0,10),
+        prueba: $('p_prueba').value.trim(),
+        mol: $('p_mol').value,
+        insertos: $('p_insertos').value,
+        vel: $('p_vel').value,
+        caida: $('p_apertura').value,
+        cang: $('p_cang').value,
+        flujo: $('p_flujo').value
+      };
+      await postData(payload);
+      msg('statusProd', 'Producción guardada correctamente.', true);
+      $('q_pruebaBuscar').value = $('p_prueba').value.trim();
+    }catch(e){
+      msg('statusProd', 'No se pudo crear la prueba: ' + e.message, false);
+    }
+  });
 });
 
 $('btnBuscar').addEventListener('click', async () => {
   clearMsg('statusCalidad');
-  if (!scriptUrl()) { msg('statusCalidad', 'Falta la URL /exec de Apps Script.', false); return; }
   const prueba = $('q_pruebaBuscar').value.trim();
-  if (!prueba) { msg('statusCalidad', 'Escribe el número de prueba.', false); return; }
-
-  try {
-    const url = `${scriptUrl()}?action=buscar_prueba&sheetName=${encodeURIComponent(sheetName())}&prueba=${encodeURIComponent(prueba)}`;
+  if (!prueba){ msg('statusCalidad','Escribe el número de prueba.', false); return; }
+  try{
+    const url = `${APPS_SCRIPT_URL}?action=buscar_prueba&sheetName=${encodeURIComponent(SHEET_NAME)}&prueba=${encodeURIComponent(prueba)}`;
     const res = await fetch(url);
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || 'No encontrada');
@@ -345,84 +458,86 @@ $('btnBuscar').addEventListener('click', async () => {
     $('previewPrueba').style.display = 'block';
     $('previewTexto').innerHTML = `
       <b>Prueba:</b> ${r.prueba || ''} |
-      <b>Cliente:</b> ${r.cliente || ''} |
-      <b>MOL:</b> ${r.mol || ''} |
-      <b>INS:</b> ${r.insertos || ''} |
-      <b>VEL:</b> ${r.vel || ''} |
-      <b>APE:</b> ${r.caida || ''} |
-      <b>CAN:</b> ${r.cang || ''} |
-      <b>FLU:</b> ${r.flujo || ''} |
-      <b>Criba:</b> ${r.criba || ''} |
+      <b>Malla molino:</b> ${r.mol || ''} |
+      <b>Insertos:</b> ${r.insertos || ''} |
+      <b>Velocidad:</b> ${r.vel || ''} |
+      <b>Apertura:</b> ${r.caida || ''} |
+      <b>Cangilones:</b> ${r.cang || ''} |
+      <b>Flujo:</b> ${r.flujo || ''} |
       <b>Estado:</b> ${r.estado || ''}
     `;
     $('q_mpKg').value = r.mpKg || '';
-    msg('statusCalidad', 'Prueba encontrada. Calidad ya puede llenar kilos y mallas.', true);
-  } catch (e) {
+    msg('statusCalidad', 'Prueba encontrada.', true);
+  }catch(e){
     msg('statusCalidad', 'No se pudo encontrar la prueba: ' + e.message, false);
   }
 });
 
-$('btnCompletar').addEventListener('click', async () => {
+$('btnCalcularCalidad').addEventListener('click', () => {
   clearMsg('statusCalidad');
-  if (!scriptUrl()) { msg('statusCalidad', 'Falta la URL /exec de Apps Script.', false); return; }
-  const prueba = $('q_pruebaBuscar').value.trim();
-  if (!prueba) { msg('statusCalidad', 'Falta número de prueba.', false); return; }
-
   calcularCalidad();
+  msg('statusCalidad', 'Cálculo listo.', true);
+});
 
-  const payload = {
-    action: 'completar_prueba',
-    sheetName: sheetName(),
-    prueba: prueba,
-    mpKg: $('q_mpKg').value,
-    ptKg: $('q_ptKg').value,
-    finosKg: $('q_finosKg').value,
-    granoKg: $('q_granoKg').value,
-    finosPct: $('q_finosPct').value,
-    granoPct: $('q_granoPct').value,
-    balanceKg: $('q_balanceKg').value,
-    m25: $('q_m25').value,
-    m30: $('q_m30').value,
-    m40: $('q_m40').value,
-    m60: $('q_m60').value,
-    m100: $('q_m100').value,
-    fondo: $('q_fondo').value,
-    sumaMallas: $('q_sumaMallas').value,
-    analistaCalidad: $('q_analista').value,
-    estadoVisual: $('q_estadoVisual').value,
-    obsCalidad: $('q_obs').value
-  };
-
-  try {
-    const res = await fetch(scriptUrl(), {
-      method: 'POST',
-      headers: {'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || 'No se pudo guardar calidad');
-    msg('statusCalidad', 'Calidad guardada. La fila quedó completa.', true);
-  } catch (e) {
-    msg('statusCalidad', 'No se pudo guardar calidad: ' + e.message, false);
-  }
+$('btnCompletar').addEventListener('click', () => {
+  clearMsg('statusCalidad');
+  calcularCalidad();
+  const items = [
+    ['Número de prueba', $('q_pruebaBuscar').value.trim()],
+    ['MP kg', $('q_mpKg').value],
+    ['PT kg', $('q_ptKg').value],
+    ['Finos kg', $('q_finosKg').value],
+    ['Grano kg', $('q_granoKg').value],
+    ['Finos %', $('q_finosPct').value],
+    ['M25', $('q_m25').value],
+    ['M30', $('q_m30').value],
+    ['M40', $('q_m40').value],
+    ['M60', $('q_m60').value],
+    ['M100', $('q_m100').value],
+    ['Fondo', $('q_fondo').value]
+  ];
+  openModal('Confirmar calidad', items, async () => {
+    try{
+      const payload = {
+        action: 'completar_prueba',
+        sheetName: SHEET_NAME,
+        prueba: $('q_pruebaBuscar').value.trim(),
+        mpKg: $('q_mpKg').value,
+        ptKg: $('q_ptKg').value,
+        finosKg: $('q_finosKg').value,
+        granoKg: $('q_granoKg').value,
+        finosPct: $('q_finosPct').value,
+        granoPct: $('q_granoPct').value,
+        balanceKg: $('q_balanceKg').value,
+        m25: $('q_m25').value,
+        m30: $('q_m30').value,
+        m40: $('q_m40').value,
+        m60: $('q_m60').value,
+        m100: $('q_m100').value,
+        fondo: $('q_fondo').value,
+        sumaMallas: $('q_sumaMallas').value,
+        analistaCalidad: $('q_analista').value,
+        estadoVisual: $('q_estadoVisual').value,
+        obsCalidad: $('q_obs').value
+      };
+      await postData(payload);
+      msg('statusCalidad', 'Calidad guardada correctamente.', true);
+    }catch(e){
+      msg('statusCalidad', 'No se pudo guardar calidad: ' + e.message, false);
+    }
+  });
 });
 
 $('btnLimpiarProd').addEventListener('click', () => {
-  ['p_prueba','p_cliente','p_producto','p_proveedor','p_operador','p_mol','p_insertos','p_vel','p_caida','p_cang','p_flujo','p_criba','p_obs'].forEach(id => $(id).value='');
-  $('p_producto').value = 'Azúcar refinada';
-  $('p_proveedor').value = 'CASSA';
-  $('p_mp').value = 150;
-  $('p_fecha').value = hoyISO();
+  ['p_prueba','p_mol','p_insertos','p_vel','p_apertura','p_cang','p_flujo'].forEach(id => $(id).value='');
   clearMsg('statusProd');
 });
 $('btnLimpiarCalidad').addEventListener('click', () => {
   ['q_pruebaBuscar','q_mpKg','q_ptKg','q_finosKg','q_granoKg','q_finosPct','q_granoPct','q_balanceKg','q_m25','q_m30','q_m40','q_m60','q_m100','q_fondo','q_sumaMallas','q_analista','q_estadoVisual','q_obs'].forEach(id => $(id).value='');
-  document.querySelector('#compareTable tbody').innerHTML = '';
   $('previewPrueba').style.display = 'none';
+  document.querySelector('#compareTable tbody').innerHTML = '';
   clearMsg('statusCalidad');
 });
-
-$('p_fecha').value = hoyISO();
 </script>
 </body>
 </html>
