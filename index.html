@@ -12,7 +12,7 @@
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#fafafa 0%,#f3f4f6 100%);color:var(--text)}
-    .wrap{max-width:1180px;margin:34px auto;padding:0 18px}
+    .wrap{max-width:1200px;margin:34px auto;padding:0 18px}
     .hero{margin-bottom:18px}
     .hero h1{margin:0 0 8px;font-size:clamp(28px,4vw,42px);letter-spacing:-.03em}
     .hero p{margin:0;color:var(--muted)}
@@ -30,7 +30,7 @@
     .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
     .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
     .grid-6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
-    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .grid-7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px}
     label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
     input,select,textarea,button{width:100%;font:inherit;border-radius:14px;border:1px solid var(--line);background:#fff;color:var(--text);padding:12px 13px;outline:none}
     input:focus,select:focus,textarea:focus{border-color:#9ca3af;box-shadow:0 0 0 3px rgba(17,24,39,.06)}
@@ -62,15 +62,15 @@
     .modal-card h3{margin:0 0 6px;font-size:24px}
     .modal-card p{margin:0 0 16px;color:var(--muted)}
     .modal-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:18px}
-    @media (max-width:980px){.grid,.grid-3,.grid-6,.summary-list,.metric-row,.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:560px){.grid,.grid-3,.grid-6,.summary-list,.metric-row,.grid-2{grid-template-columns:1fr}button{width:100%}}
+    @media (max-width:980px){.grid,.grid-3,.grid-6,.grid-7,.summary-list,.metric-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:560px){.grid,.grid-3,.grid-6,.grid-7,.summary-list,.metric-row{grid-template-columns:1fr}button{width:100%}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="hero">
       <h1>Registro de Pruebas de Molino</h1>
-      <p>Producción crea la prueba. Calidad completa kilos, mallas y compara contra la mejor prueba y el objetivo.</p>
+      <p>Producción crea la prueba. Calidad primero captura granulometría MP y después completa la prueba final.</p>
     </div>
 
     <div class="card">
@@ -111,13 +111,10 @@
           <div><label for="p_vel">Velocidad</label><input id="p_vel"></div>
           <div><label for="p_apertura">Apertura</label><input id="p_apertura"></div>
           <div><label for="p_cang">Cangilones</label><input id="p_cang"></div>
-          <div>
-            <label for="p_flujo">Flujo</label>
-            <input id="p_flujo">
-          </div>
+          <div><label for="p_flujo">Flujo</label><input id="p_flujo"></div>
         </div>
         <div class="row" style="margin-top:18px">
-          <button type="button" id="btnCrear">Subir producción</button>
+          <button type="button" id="btnCrearProd">Subir producción</button>
           <button type="button" class="ghost" id="btnLimpiarProd">Limpiar</button>
         </div>
         <div id="statusProd" class="status"></div>
@@ -126,16 +123,50 @@
 
     <div id="calidadPanel" class="panel">
       <div class="card">
-        <h2>Calidad</h2>
-        <p class="muted">Primero kilos y humedad. Después mallas. Todo se guarda en la misma prueba.</p>
+        <h2>Calidad — Granulometría MP</h2>
+        <p class="muted">Primero busca la prueba de Producción. En esta etapa solo se valida producto y proveedor y se captura la granulometría de materia prima antes del molino.</p>
+        <div class="grid-3">
+          <div><label for="qmp_pruebaBuscar">Número de prueba</label><input id="qmp_pruebaBuscar"></div>
+          <div style="align-self:end"><button type="button" id="btnBuscarMP">Buscar prueba de producción</button></div>
+          <div></div>
+        </div>
+
+        <div id="previewMP" class="preview" style="display:none">
+          <h3>Datos base para granulometría MP</h3>
+          <div id="previewTextoMP" class="muted"></div>
+        </div>
+
+        <div style="margin-top:16px">
+          <h3>Granulometría MP</h3>
+          <div class="grid-7">
+            <div><label for="qmp_m25">M25</label><input id="qmp_m25" type="number" step="0.01"></div>
+            <div><label for="qmp_m30">M30</label><input id="qmp_m30" type="number" step="0.01"></div>
+            <div><label for="qmp_m40">M40</label><input id="qmp_m40" type="number" step="0.01"></div>
+            <div><label for="qmp_m60">M60</label><input id="qmp_m60" type="number" step="0.01"></div>
+            <div><label for="qmp_m80">M80</label><input id="qmp_m80" type="number" step="0.01"></div>
+            <div><label for="qmp_m100">M100</label><input id="qmp_m100" type="number" step="0.01"></div>
+            <div><label for="qmp_fondo">Fondo</label><input id="qmp_fondo" type="number" step="0.01"></div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:18px">
+          <button type="button" id="btnGuardarMP">Guardar granulometría MP</button>
+          <button type="button" class="ghost" id="btnLimpiarMP">Limpiar granulometría MP</button>
+        </div>
+        <div id="statusMP" class="status"></div>
+      </div>
+
+      <div class="card">
+        <h2>Calidad — Resultados finales</h2>
+        <p class="muted">Cuando termine la prueba, busca de nuevo el número y captura toda la información final.</p>
         <div class="grid-3">
           <div><label for="q_pruebaBuscar">Número de prueba</label><input id="q_pruebaBuscar"></div>
-          <div style="align-self:end"><button type="button" id="btnBuscar">Buscar prueba</button></div>
+          <div style="align-self:end"><button type="button" id="btnBuscarFinal">Buscar prueba final</button></div>
           <div></div>
         </div>
 
         <div id="previewPrueba" class="preview" style="display:none">
-          <h3>Resumen de Producción</h3>
+          <h3>Resumen para captura final</h3>
           <div id="previewTexto" class="muted"></div>
         </div>
 
@@ -155,7 +186,7 @@
         </div>
 
         <div style="margin-top:16px">
-          <h3>Mallas</h3>
+          <h3>Mallas finales</h3>
           <div class="grid-6">
             <div><label for="q_m25">M25</label><input id="q_m25" type="number" step="0.01"></div>
             <div><label for="q_m30">M30</label><input id="q_m30" type="number" step="0.01"></div>
@@ -206,8 +237,8 @@
 
         <div class="row" style="margin-top:18px">
           <button type="button" id="btnCalcularCalidad">Calcular</button>
-          <button type="button" class="secondary" id="btnCompletar">Subir calidad</button>
-          <button type="button" class="ghost" id="btnLimpiarCalidad">Limpiar</button>
+          <button type="button" class="secondary" id="btnCompletar">Subir calidad final</button>
+          <button type="button" class="ghost" id="btnLimpiarCalidad">Limpiar resultados finales</button>
         </div>
         <div id="statusCalidad" class="status"></div>
       </div>
@@ -228,7 +259,6 @@
 
   <script>
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7ZqccyJ9s_l2r37zifBzgHpubN-crb-kkEvU-87il2unYt9EF1MAKgh7FrWJaXkfv9Q/exec';
-    const SHEET_NAME = 'Pruebas';
     const $ = (id) => document.getElementById(id);
     let confirmAction = null;
     let cachedBestRow = null;
@@ -311,11 +341,29 @@
       return { totalAbs: Number(totalAbs.toFixed(2)), cumplimiento: Number(cumplimiento.toFixed(2)) };
     }
 
+    async function doGet(params){
+      const qs = new URLSearchParams(params);
+      const res = await fetch(`${APPS_SCRIPT_URL}?${qs.toString()}`);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'No se pudo consultar');
+      return data;
+    }
+
+    async function postData(payload){
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'No se pudo guardar');
+      return data;
+    }
+
     async function fetchBestTest(){
       const obj = getObjective();
-      const qs = new URLSearchParams({
+      const data = await doGet({
         action:'mejor_prueba',
-        sheetName:SHEET_NAME,
         esp25:String(obj.m25),
         esp30:String(obj.m30),
         esp40:String(obj.m40),
@@ -323,9 +371,6 @@
         esp100:String(obj.m100),
         espFondo:String(obj.fondo)
       });
-      const res = await fetch(`${APPS_SCRIPT_URL}?${qs.toString()}`);
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error || 'No se pudo obtener la mejor prueba');
       return data.row || null;
     }
 
@@ -358,12 +403,7 @@
       ];
       rows.forEach(([m, o, c, b]) => {
         const currentCloser = Math.abs(c-o) <= Math.abs(b-o);
-        tbody.innerHTML += `<tr>
-          <td>${m}</td>
-          <td>${o}</td>
-          <td class="${currentCloser ? 'better' : ''}">${c}</td>
-          <td class="${!currentCloser ? 'better' : ''}">${b}</td>
-        </tr>`;
+        tbody.innerHTML += `<tr><td>${m}</td><td>${o}</td><td class="${currentCloser ? 'better' : ''}">${c}</td><td class="${!currentCloser ? 'better' : ''}">${b}</td></tr>`;
       });
     }
 
@@ -387,7 +427,7 @@
         ['100', objective.m100, current.m100],
         ['Fondo', objective.fondo, current.fondo]
       ];
-      const tbody = document.querySelector('#compareTable tbody');
+      const tbody = $('compareTable').querySelector('tbody');
       tbody.innerHTML = '';
       rows.forEach(([malla, esp, real]) => {
         const diff = Math.abs(esp - real);
@@ -396,18 +436,7 @@
       return calc;
     }
 
-    async function postData(payload){
-      const res = await fetch(APPS_SCRIPT_URL, {
-        method:'POST',
-        headers:{'Content-Type':'text/plain;charset=utf-8'},
-        body:JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error || 'No se pudo guardar');
-      return data;
-    }
-
-    $('btnCrear').addEventListener('click', () => {
+    $('btnCrearProd').addEventListener('click', () => {
       clearMsg('statusProd');
       const items = [
         ['Número de prueba', $('p_prueba').value.trim()],
@@ -424,10 +453,9 @@
       openModal('Confirmar producción', items, async () => {
         try{
           await postData({
-            action:'crear_prueba',
-            sheetName:SHEET_NAME,
-            fecha:new Date().toISOString().slice(0,10),
+            action:'crear_produccion',
             prueba:$('p_prueba').value.trim(),
+            fecha:new Date().toISOString().slice(0,10),
             producto:$('p_producto').value,
             proveedor:$('p_proveedor').value,
             operadorProduccion:$('p_operador').value,
@@ -439,6 +467,7 @@
             flujo:$('p_flujo').value
           });
           msg('statusProd', 'Producción guardada correctamente.', true);
+          $('qmp_pruebaBuscar').value = $('p_prueba').value.trim();
           $('q_pruebaBuscar').value = $('p_prueba').value.trim();
         }catch(e){
           msg('statusProd', 'No se pudo crear la prueba: ' + e.message, false);
@@ -446,41 +475,98 @@
       });
     });
 
-    $('btnBuscar').addEventListener('click', async () => {
+    $('btnBuscarMP').addEventListener('click', async () => {
+      clearMsg('statusMP');
+      const prueba = $('qmp_pruebaBuscar').value.trim();
+      if (!prueba){ msg('statusMP','Escribe el número de prueba.', false); return; }
+      try{
+        const data = await doGet({action:'buscar_para_mp', prueba});
+        const r = data.row;
+        $('previewMP').style.display = 'block';
+        $('previewTextoMP').innerHTML = `<b>Prueba:</b> ${r.prueba || ''} | <b>Producto:</b> ${r.producto || ''} | <b>Proveedor:</b> ${r.proveedor || ''}`;
+        $('qmp_m25').value = r.mp_m25 || '';
+        $('qmp_m30').value = r.mp_m30 || '';
+        $('qmp_m40').value = r.mp_m40 || '';
+        $('qmp_m60').value = r.mp_m60 || '';
+        $('qmp_m80').value = r.mp_m80 || '';
+        $('qmp_m100').value = r.mp_m100 || '';
+        $('qmp_fondo').value = r.mp_fondo || '';
+        msg('statusMP', 'Prueba encontrada para granulometría MP.', true);
+      }catch(e){
+        msg('statusMP', 'No se pudo encontrar la prueba: ' + e.message, false);
+      }
+    });
+
+    $('btnGuardarMP').addEventListener('click', () => {
+      clearMsg('statusMP');
+      const items = [
+        ['Número de prueba', $('qmp_pruebaBuscar').value.trim()],
+        ['M25 MP', $('qmp_m25').value],
+        ['M30 MP', $('qmp_m30').value],
+        ['M40 MP', $('qmp_m40').value],
+        ['M60 MP', $('qmp_m60').value],
+        ['M80 MP', $('qmp_m80').value],
+        ['M100 MP', $('qmp_m100').value],
+        ['Fondo MP', $('qmp_fondo').value]
+      ];
+      openModal('Confirmar granulometría MP', items, async () => {
+        try{
+          await postData({
+            action:'guardar_calidad_mp',
+            prueba:$('qmp_pruebaBuscar').value.trim(),
+            mp_m25:$('qmp_m25').value,
+            mp_m30:$('qmp_m30').value,
+            mp_m40:$('qmp_m40').value,
+            mp_m60:$('qmp_m60').value,
+            mp_m80:$('qmp_m80').value,
+            mp_m100:$('qmp_m100').value,
+            mp_fondo:$('qmp_fondo').value
+          });
+          msg('statusMP', 'Granulometría MP guardada correctamente.', true);
+          $('q_pruebaBuscar').value = $('qmp_pruebaBuscar').value.trim();
+        }catch(e){
+          msg('statusMP', 'No se pudo guardar la granulometría MP: ' + e.message, false);
+        }
+      });
+    });
+
+    $('btnBuscarFinal').addEventListener('click', async () => {
       clearMsg('statusCalidad');
       const prueba = $('q_pruebaBuscar').value.trim();
-      if (!prueba){ msg('statusCalidad', 'Escribe el número de prueba.', false); return; }
+      if (!prueba){ msg('statusCalidad','Escribe el número de prueba.', false); return; }
       try{
-        const url = `${APPS_SCRIPT_URL}?action=buscar_prueba&sheetName=${encodeURIComponent(SHEET_NAME)}&prueba=${encodeURIComponent(prueba)}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error || 'No encontrada');
+        const data = await doGet({action:'buscar_para_final', prueba});
         const r = data.row;
         $('previewPrueba').style.display = 'block';
-        $('previewTexto').innerHTML = `<b>Prueba:</b> ${r.prueba || ''} | <b>Producto:</b> ${r.producto || ''} | <b>Proveedor:</b> ${r.proveedor || ''} | <b>Quién hizo la prueba:</b> ${r.operadorProduccion || ''} | <b>Malla molino:</b> ${r.mol || ''} | <b>Insertos:</b> ${r.insertos || ''} | <b>Velocidad:</b> ${r.vel || ''} | <b>Apertura:</b> ${r.caida || ''} | <b>Cangilones:</b> ${r.cang || ''} | <b>Flujo:</b> ${r.flujo || ''} | <b>Estado:</b> ${r.estado || ''}`;
-        $('q_mpKg').value = r.mpKg || '';
-        $('q_ptKg').value = r.ptKg || '';
-        $('q_finosKg').value = r.finosKg || '';
-        $('q_granoKg').value = r.granoKg || '';
-        $('q_humedadMT').value = r.humedadMT || '';
-        $('q_humedadPT').value = r.humedadPT || '';
-        $('q_m25').value = r.m25 || '';
-        $('q_m30').value = r.m30 || '';
-        $('q_m40').value = r.m40 || '';
-        $('q_m60').value = r.m60 || '';
-        $('q_m100').value = r.m100 || '';
-        $('q_fondo').value = r.fondo || '';
-        $('q_estadoVisual').value = r.estadoVisual || '';
-        $('q_obs').value = r.obsCalidad || '';
-        $('q_analista').value = r.analistaCalidad || '';
+        $('previewTexto').innerHTML = `
+          <b>Prueba:</b> ${r.prueba || ''} |
+          <b>Producto:</b> ${r.producto || ''} |
+          <b>Proveedor:</b> ${r.proveedor || ''} |
+          <b>Estado Calidad:</b> ${r.estadoCalidad || 'Sin captura'} |
+          <b>MP M25:</b> ${r.mp_m25 || ''} |
+          <b>MP M30:</b> ${r.mp_m30 || ''} |
+          <b>MP M40:</b> ${r.mp_m40 || ''} |
+          <b>MP M60:</b> ${r.mp_m60 || ''} |
+          <b>MP M80:</b> ${r.mp_m80 || ''} |
+          <b>MP M100:</b> ${r.mp_m100 || ''} |
+          <b>MP Fondo:</b> ${r.mp_fondo || ''}
+        `;
+        ['mpKg','ptKg','finosKg','granoKg','humedadMT','humedadPT','m25','m30','m40','m60','m100','fondo','estadoVisual','obsCalidad','analistaCalidad'].forEach(key => {
+          const idMap = {
+            mpKg:'q_mpKg', ptKg:'q_ptKg', finosKg:'q_finosKg', granoKg:'q_granoKg',
+            humedadMT:'q_humedadMT', humedadPT:'q_humedadPT', m25:'q_m25', m30:'q_m30', m40:'q_m40', m60:'q_m60', m100:'q_m100', fondo:'q_fondo',
+            estadoVisual:'q_estadoVisual', obsCalidad:'q_obs', analistaCalidad:'q_analista'
+          };
+          $(idMap[key]).value = r[key] || '';
+        });
         calcularCalidadLocal();
         try{
           cachedBestRow = await fetchBestTest();
           renderBestComparison(cachedBestRow);
         }catch(_){}
-        msg('statusCalidad', 'Prueba encontrada.', true);
+        msg('statusCalidad', 'Prueba encontrada para captura final.', true);
       }catch(e){
-        msg('statusCalidad', 'No se pudo encontrar la prueba: ' + e.message, false);
+        msg('statusCalidad', 'No se pudo encontrar la prueba final: ' + e.message, false);
       }
     });
 
@@ -504,7 +590,6 @@
         cachedBestRow = await fetchBestTest();
         renderBestComparison(cachedBestRow);
       }catch(_){}
-
       const items = [
         ['Número de prueba', $('q_pruebaBuscar').value.trim()],
         ['MP kg', $('q_mpKg').value],
@@ -521,12 +606,10 @@
         ['M100', $('q_m100').value],
         ['Fondo', $('q_fondo').value]
       ];
-
-      openModal('Confirmar calidad', items, async () => {
+      openModal('Confirmar calidad final', items, async () => {
         try{
           await postData({
-            action:'completar_prueba',
-            sheetName:SHEET_NAME,
+            action:'completar_calidad_final',
             prueba:$('q_pruebaBuscar').value.trim(),
             mpKg:$('q_mpKg').value,
             ptKg:$('q_ptKg').value,
@@ -552,9 +635,9 @@
           });
           cachedBestRow = await fetchBestTest().catch(() => cachedBestRow);
           renderBestComparison(cachedBestRow);
-          msg('statusCalidad', 'Calidad guardada correctamente.', true);
+          msg('statusCalidad', 'Calidad final guardada correctamente.', true);
         }catch(e){
-          msg('statusCalidad', 'No se pudo guardar calidad: ' + e.message, false);
+          msg('statusCalidad', 'No se pudo guardar calidad final: ' + e.message, false);
         }
       });
     });
@@ -564,11 +647,17 @@
       clearMsg('statusProd');
     });
 
+    $('btnLimpiarMP').addEventListener('click', () => {
+      ['qmp_pruebaBuscar','qmp_m25','qmp_m30','qmp_m40','qmp_m60','qmp_m80','qmp_m100','qmp_fondo'].forEach(id => $(id).value = '');
+      $('previewMP').style.display = 'none';
+      clearMsg('statusMP');
+    });
+
     $('btnLimpiarCalidad').addEventListener('click', () => {
       ['q_pruebaBuscar','q_mpKg','q_ptKg','q_finosKg','q_granoKg','q_humedadMT','q_humedadPT','q_finosPct','q_granoPct','q_balanceKg','q_m25','q_m30','q_m40','q_m60','q_m100','q_fondo','q_sumaMallas','q_cumplimientoPct','q_analista','q_estadoVisual','q_obs'].forEach(id => $(id).value = '');
       $('previewPrueba').style.display = 'none';
-      document.querySelector('#compareTable tbody').innerHTML = '';
-      document.querySelector('#bestCompareTable tbody').innerHTML = '';
+      $('compareTable').querySelector('tbody').innerHTML = '';
+      $('bestCompareTable').querySelector('tbody').innerHTML = '';
       ['bestPrueba','bestProducto','bestCumplimiento','bestDesviacion'].forEach(id => $(id).textContent = '-');
       cachedBestRow = null;
       clearMsg('statusCalidad');
