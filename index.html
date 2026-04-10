@@ -23,7 +23,7 @@
     .muted{color:var(--muted)}
     .small{font-size:12px;color:var(--muted)}
     .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-    .tab{padding:11px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:700;color:var(--text)}
+    .tab{padding:11px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:700;color:var(--text);transition:0.2s}
     .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
     .panel{display:none}
     .panel.active{display:block}
@@ -37,9 +37,11 @@
     input[readonly]{background:#f9fafb;color:#374151}
     textarea{min-height:96px;resize:vertical}
     .row{display:flex;gap:10px;flex-wrap:wrap}
-    button{width:auto;min-width:180px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+    button{width:auto;min-width:180px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;box-shadow:var(--shadow);transition:0.2s}
+    button:disabled{background:#9ca3af;cursor:not-allowed;box-shadow:none;color:#f3f4f6}
     button.secondary{background:var(--accent-2)}
     button.ghost{background:#fff;color:var(--text);border:1px solid var(--line);box-shadow:none}
+    button.ghost:disabled{color:#9ca3af;border-color:#e5e7eb;background:#f9fafb}
     .status{margin-top:14px;padding:12px 14px;border-radius:14px;display:none;font-weight:700}
     .status.ok{display:block;background:var(--ok-bg);color:var(--ok-tx)}
     .status.bad{display:block;background:var(--bad-bg);color:var(--bad-tx)}
@@ -112,6 +114,7 @@
           <div><label for="p_apertura">Apertura</label><input id="p_apertura"></div>
           <div><label for="p_cang">Cangilones</label><input id="p_cang"></div>
           <div><label for="p_flujo">Flujo</label><input id="p_flujo"></div>
+          <div><label for="p_criba">Criba</label><input id="p_criba" placeholder="Ej. 100,12,60"></div>
         </div>
         <div class="row" style="margin-top:18px">
           <button type="button" id="btnCrearProd">Subir producción</button>
@@ -258,10 +261,25 @@
   </div>
 
   <script>
+    // IMPORTANTE: Asegúrate de pegar aquí la URL de tu implementación web de Apps Script
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7ZqccyJ9s_l2r37zifBzgHpubN-crb-kkEvU-87il2unYt9EF1MAKgh7FrWJaXkfv9Q/exec';
+    
     const $ = (id) => document.getElementById(id);
     let confirmAction = null;
     let cachedBestRow = null;
+
+    // --- MANEJO DE ESTADOS DE CARGA (LOADING) ---
+    async function btnCargar(btnElement, text, actionPromise) {
+      const originalText = btnElement.textContent;
+      btnElement.disabled = true;
+      btnElement.textContent = text + ' ⏳';
+      try {
+        await actionPromise();
+      } finally {
+        btnElement.disabled = false;
+        btnElement.textContent = originalText;
+      }
+    }
 
     document.querySelectorAll('.tab').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -300,41 +318,27 @@
       confirmAction = null;
     }
     $('btnCancelModal').addEventListener('click', closeModal);
-    $('btnConfirmModal').addEventListener('click', async () => {
-      if (confirmAction) await confirmAction();
+    
+    // El botón Confirmar ahora tiene loading
+    $('btnConfirmModal').addEventListener('click', async function() {
+      if (confirmAction) {
+        await btnCargar(this, 'Guardando...', confirmAction);
+      }
       closeModal();
     });
 
     function getObjective(){
-      return {
-        m25:num('esp25'),
-        m30:num('esp30'),
-        m40:num('esp40'),
-        m60:num('esp60'),
-        m100:num('esp100'),
-        fondo:num('espFondo')
-      };
+      return { m25:num('esp25'), m30:num('esp30'), m40:num('esp40'), m60:num('esp60'), m100:num('esp100'), fondo:num('espFondo') };
     }
 
     function currentTestData(){
-      return {
-        m25:num('q_m25'),
-        m30:num('q_m30'),
-        m40:num('q_m40'),
-        m60:num('q_m60'),
-        m100:num('q_m100'),
-        fondo:num('q_fondo')
-      };
+      return { m25:num('q_m25'), m30:num('q_m30'), m40:num('q_m40'), m60:num('q_m60'), m100:num('q_m100'), fondo:num('q_fondo') };
     }
 
     function computeDeviationAndCompliance(test, objective){
       const diffs = [
-        Math.abs((test.m25||0) - objective.m25),
-        Math.abs((test.m30||0) - objective.m30),
-        Math.abs((test.m40||0) - objective.m40),
-        Math.abs((test.m60||0) - objective.m60),
-        Math.abs((test.m100||0) - objective.m100),
-        Math.abs((test.fondo||0) - objective.fondo)
+        Math.abs((test.m25||0) - objective.m25), Math.abs((test.m30||0) - objective.m30), Math.abs((test.m40||0) - objective.m40),
+        Math.abs((test.m60||0) - objective.m60), Math.abs((test.m100||0) - objective.m100), Math.abs((test.fondo||0) - objective.fondo)
       ];
       const totalAbs = diffs.reduce((a,b)=>a+b,0);
       const cumplimiento = Math.max(0, 100 - (totalAbs / 2));
@@ -363,13 +367,8 @@
     async function fetchBestTest(){
       const obj = getObjective();
       const data = await doGet({
-        action:'mejor_prueba',
-        esp25:String(obj.m25),
-        esp30:String(obj.m30),
-        esp40:String(obj.m40),
-        esp60:String(obj.m60),
-        esp100:String(obj.m100),
-        espFondo:String(obj.fondo)
+        action:'mejor_prueba', esp25:String(obj.m25), esp30:String(obj.m30), esp40:String(obj.m40),
+        esp60:String(obj.m60), esp100:String(obj.m100), espFondo:String(obj.fondo)
       });
       return data.row || null;
     }
@@ -378,12 +377,8 @@
       const objective = getObjective();
       const current = currentTestData();
       const best = bestRow ? {
-        m25:Number(bestRow.m25||0),
-        m30:Number(bestRow.m30||0),
-        m40:Number(bestRow.m40||0),
-        m60:Number(bestRow.m60||0),
-        m100:Number(bestRow.m100||0),
-        fondo:Number(bestRow.fondo||0)
+        m25:Number(bestRow.m25||0), m30:Number(bestRow.m30||0), m40:Number(bestRow.m40||0),
+        m60:Number(bestRow.m60||0), m100:Number(bestRow.m100||0), fondo:Number(bestRow.fondo||0)
       } : {m25:0,m30:0,m40:0,m60:0,m100:0,fondo:0};
 
       $('bestPrueba').textContent = bestRow ? (bestRow.prueba || '-') : '-';
@@ -394,12 +389,8 @@
       const tbody = $('bestCompareTable').querySelector('tbody');
       tbody.innerHTML = '';
       const rows = [
-        ['25', objective.m25, current.m25, best.m25],
-        ['30', objective.m30, current.m30, best.m30],
-        ['40', objective.m40, current.m40, best.m40],
-        ['60', objective.m60, current.m60, best.m60],
-        ['100', objective.m100, current.m100, best.m100],
-        ['Fondo', objective.fondo, current.fondo, best.fondo]
+        ['25', objective.m25, current.m25, best.m25], ['30', objective.m30, current.m30, best.m30], ['40', objective.m40, current.m40, best.m40],
+        ['60', objective.m60, current.m60, best.m60], ['100', objective.m100, current.m100, best.m100], ['Fondo', objective.fondo, current.fondo, best.fondo]
       ];
       rows.forEach(([m, o, c, b]) => {
         const currentCloser = Math.abs(c-o) <= Math.abs(b-o);
@@ -420,12 +411,8 @@
       $('q_cumplimientoPct').value = calc.cumplimiento.toFixed(2);
 
       const rows = [
-        ['25', objective.m25, current.m25],
-        ['30', objective.m30, current.m30],
-        ['40', objective.m40, current.m40],
-        ['60', objective.m60, current.m60],
-        ['100', objective.m100, current.m100],
-        ['Fondo', objective.fondo, current.fondo]
+        ['25', objective.m25, current.m25], ['30', objective.m30, current.m30], ['40', objective.m40, current.m40],
+        ['60', objective.m60, current.m60], ['100', objective.m100, current.m100], ['Fondo', objective.fondo, current.fondo]
       ];
       const tbody = $('compareTable').querySelector('tbody');
       tbody.innerHTML = '';
@@ -438,33 +425,20 @@
 
     $('btnCrearProd').addEventListener('click', () => {
       clearMsg('statusProd');
+      // Criba movido al final del resumen
       const items = [
-        ['Número de prueba', $('p_prueba').value.trim()],
-        ['Producto', $('p_producto').value],
-        ['Proveedor', $('p_proveedor').value],
-        ['Quién hace la prueba', $('p_operador').value],
-        ['Malla molino', $('p_mol').value],
-        ['Insertos', $('p_insertos').value],
-        ['Velocidad', $('p_vel').value],
-        ['Apertura', $('p_apertura').value],
-        ['Cangilones', $('p_cang').value],
-        ['Flujo', $('p_flujo').value]
+        ['Número de prueba', $('p_prueba').value.trim()], ['Producto', $('p_producto').value], ['Proveedor', $('p_proveedor').value],
+        ['Quién hace la prueba', $('p_operador').value], ['Malla molino', $('p_mol').value], ['Insertos', $('p_insertos').value],
+        ['Velocidad', $('p_vel').value], ['Apertura', $('p_apertura').value], ['Cangilones', $('p_cang').value], 
+        ['Flujo', $('p_flujo').value], ['Criba', $('p_criba').value]
       ];
       openModal('Confirmar producción', items, async () => {
         try{
           await postData({
-            action:'crear_produccion',
-            prueba:$('p_prueba').value.trim(),
-            fecha:new Date().toISOString().slice(0,10),
-            producto:$('p_producto').value,
-            proveedor:$('p_proveedor').value,
-            operadorProduccion:$('p_operador').value,
-            mol:$('p_mol').value,
-            insertos:$('p_insertos').value,
-            vel:$('p_vel').value,
-            caida:$('p_apertura').value,
-            cang:$('p_cang').value,
-            flujo:$('p_flujo').value
+            action:'crear_produccion', prueba:$('p_prueba').value.trim(), fecha:new Date().toISOString().slice(0,10),
+            producto:$('p_producto').value, proveedor:$('p_proveedor').value, operadorProduccion:$('p_operador').value,
+            mol:$('p_mol').value, insertos:$('p_insertos').value, vel:$('p_vel').value, caida:$('p_apertura').value,
+            cang:$('p_cang').value, flujo:$('p_flujo').value, criba:$('p_criba').value
           });
           msg('statusProd', 'Producción guardada correctamente.', true);
           $('qmp_pruebaBuscar').value = $('p_prueba').value.trim();
@@ -475,52 +449,38 @@
       });
     });
 
-    $('btnBuscarMP').addEventListener('click', async () => {
+    $('btnBuscarMP').addEventListener('click', async function() {
       clearMsg('statusMP');
       const prueba = $('qmp_pruebaBuscar').value.trim();
       if (!prueba){ msg('statusMP','Escribe el número de prueba.', false); return; }
-      try{
-        const data = await doGet({action:'buscar_para_mp', prueba});
-        const r = data.row;
-        $('previewMP').style.display = 'block';
-        $('previewTextoMP').innerHTML = `<b>Prueba:</b> ${r.prueba || ''} | <b>Producto:</b> ${r.producto || ''} | <b>Proveedor:</b> ${r.proveedor || ''}`;
-        $('qmp_m25').value = r.mp_m25 || '';
-        $('qmp_m30').value = r.mp_m30 || '';
-        $('qmp_m40').value = r.mp_m40 || '';
-        $('qmp_m60').value = r.mp_m60 || '';
-        $('qmp_m80').value = r.mp_m80 || '';
-        $('qmp_m100').value = r.mp_m100 || '';
-        $('qmp_fondo').value = r.mp_fondo || '';
-        msg('statusMP', 'Prueba encontrada para granulometría MP.', true);
-      }catch(e){
-        msg('statusMP', 'No se pudo encontrar la prueba: ' + e.message, false);
-      }
+      
+      await btnCargar(this, 'Buscando', async () => {
+        try{
+          const data = await doGet({action:'buscar_para_mp', prueba});
+          const r = data.row;
+          $('previewMP').style.display = 'block';
+          $('previewTextoMP').innerHTML = `<b>Prueba:</b> ${r.prueba || ''} | <b>Producto:</b> ${r.producto || ''} | <b>Proveedor:</b> ${r.proveedor || ''}`;
+          $('qmp_m25').value = r.mp_m25 || ''; $('qmp_m30').value = r.mp_m30 || ''; $('qmp_m40').value = r.mp_m40 || '';
+          $('qmp_m60').value = r.mp_m60 || ''; $('qmp_m80').value = r.mp_m80 || ''; $('qmp_m100').value = r.mp_m100 || ''; $('qmp_fondo').value = r.mp_fondo || '';
+          msg('statusMP', 'Prueba encontrada para granulometría MP.', true);
+        }catch(e){
+          msg('statusMP', 'No se pudo encontrar la prueba: ' + e.message, false);
+        }
+      });
     });
 
     $('btnGuardarMP').addEventListener('click', () => {
       clearMsg('statusMP');
       const items = [
-        ['Número de prueba', $('qmp_pruebaBuscar').value.trim()],
-        ['M25 MP', $('qmp_m25').value],
-        ['M30 MP', $('qmp_m30').value],
-        ['M40 MP', $('qmp_m40').value],
-        ['M60 MP', $('qmp_m60').value],
-        ['M80 MP', $('qmp_m80').value],
-        ['M100 MP', $('qmp_m100').value],
-        ['Fondo MP', $('qmp_fondo').value]
+        ['Número de prueba', $('qmp_pruebaBuscar').value.trim()], ['M25 MP', $('qmp_m25').value], ['M30 MP', $('qmp_m30').value],
+        ['M40 MP', $('qmp_m40').value], ['M60 MP', $('qmp_m60').value], ['M80 MP', $('qmp_m80').value], ['M100 MP', $('qmp_m100').value], ['Fondo MP', $('qmp_fondo').value]
       ];
       openModal('Confirmar granulometría MP', items, async () => {
         try{
           await postData({
-            action:'guardar_calidad_mp',
-            prueba:$('qmp_pruebaBuscar').value.trim(),
-            mp_m25:$('qmp_m25').value,
-            mp_m30:$('qmp_m30').value,
-            mp_m40:$('qmp_m40').value,
-            mp_m60:$('qmp_m60').value,
-            mp_m80:$('qmp_m80').value,
-            mp_m100:$('qmp_m100').value,
-            mp_fondo:$('qmp_fondo').value
+            action:'guardar_calidad_mp', prueba:$('qmp_pruebaBuscar').value.trim(),
+            mp_m25:$('qmp_m25').value, mp_m30:$('qmp_m30').value, mp_m40:$('qmp_m40').value,
+            mp_m60:$('qmp_m60').value, mp_m80:$('qmp_m80').value, mp_m100:$('qmp_m100').value, mp_fondo:$('qmp_fondo').value
           });
           msg('statusMP', 'Granulometría MP guardada correctamente.', true);
           $('q_pruebaBuscar').value = $('qmp_pruebaBuscar').value.trim();
@@ -530,108 +490,68 @@
       });
     });
 
-    $('btnBuscarFinal').addEventListener('click', async () => {
+    $('btnBuscarFinal').addEventListener('click', async function() {
       clearMsg('statusCalidad');
       const prueba = $('q_pruebaBuscar').value.trim();
       if (!prueba){ msg('statusCalidad','Escribe el número de prueba.', false); return; }
-      try{
-        const data = await doGet({action:'buscar_para_final', prueba});
-        const r = data.row;
-        $('previewPrueba').style.display = 'block';
-        $('previewTexto').innerHTML = `
-          <b>Prueba:</b> ${r.prueba || ''} |
-          <b>Producto:</b> ${r.producto || ''} |
-          <b>Proveedor:</b> ${r.proveedor || ''} |
-          <b>Estado Calidad:</b> ${r.estadoCalidad || 'Sin captura'} |
-          <b>MP M25:</b> ${r.mp_m25 || ''} |
-          <b>MP M30:</b> ${r.mp_m30 || ''} |
-          <b>MP M40:</b> ${r.mp_m40 || ''} |
-          <b>MP M60:</b> ${r.mp_m60 || ''} |
-          <b>MP M80:</b> ${r.mp_m80 || ''} |
-          <b>MP M100:</b> ${r.mp_m100 || ''} |
-          <b>MP Fondo:</b> ${r.mp_fondo || ''}
-        `;
-        ['mpKg','ptKg','finosKg','granoKg','humedadMT','humedadPT','m25','m30','m40','m60','m100','fondo','estadoVisual','obsCalidad','analistaCalidad'].forEach(key => {
-          const idMap = {
-            mpKg:'q_mpKg', ptKg:'q_ptKg', finosKg:'q_finosKg', granoKg:'q_granoKg',
-            humedadMT:'q_humedadMT', humedadPT:'q_humedadPT', m25:'q_m25', m30:'q_m30', m40:'q_m40', m60:'q_m60', m100:'q_m100', fondo:'q_fondo',
-            estadoVisual:'q_estadoVisual', obsCalidad:'q_obs', analistaCalidad:'q_analista'
-          };
-          $(idMap[key]).value = r[key] || '';
-        });
-        calcularCalidadLocal();
+      
+      await btnCargar(this, 'Buscando', async () => {
+        try{
+          const data = await doGet({action:'buscar_para_final', prueba});
+          const r = data.row;
+          $('previewPrueba').style.display = 'block';
+          $('previewTexto').innerHTML = `
+            <b>Prueba:</b> ${r.prueba || ''} | <b>Producto:</b> ${r.producto || ''} | <b>Proveedor:</b> ${r.proveedor || ''} | <b>Estado:</b> ${r.estadoCalidad || 'Sin captura'}
+          `;
+          ['mpKg','ptKg','finosKg','granoKg','humedadMT','humedadPT','m25','m30','m40','m60','m100','fondo','estadoVisual','obsCalidad','analistaCalidad'].forEach(key => {
+            const idMap = {
+              mpKg:'q_mpKg', ptKg:'q_ptKg', finosKg:'q_finosKg', granoKg:'q_granoKg', humedadMT:'q_humedadMT', humedadPT:'q_humedadPT',
+              m25:'q_m25', m30:'q_m30', m40:'q_m40', m60:'q_m60', m100:'q_m100', fondo:'q_fondo', estadoVisual:'q_estadoVisual', obsCalidad:'q_obs', analistaCalidad:'q_analista'
+            };
+            $(idMap[key]).value = r[key] || '';
+          });
+          calcularCalidadLocal();
+          try{ cachedBestRow = await fetchBestTest(); renderBestComparison(cachedBestRow); }catch(_){}
+          msg('statusCalidad', 'Prueba encontrada para captura final.', true);
+        }catch(e){
+          msg('statusCalidad', 'No se pudo encontrar la prueba final: ' + e.message, false);
+        }
+      });
+    });
+
+    $('btnCalcularCalidad').addEventListener('click', async function() {
+      clearMsg('statusCalidad');
+      calcularCalidadLocal();
+      await btnCargar(this, 'Calculando', async () => {
         try{
           cachedBestRow = await fetchBestTest();
           renderBestComparison(cachedBestRow);
-        }catch(_){}
-        msg('statusCalidad', 'Prueba encontrada para captura final.', true);
-      }catch(e){
-        msg('statusCalidad', 'No se pudo encontrar la prueba final: ' + e.message, false);
-      }
-    });
-
-    $('btnCalcularCalidad').addEventListener('click', async () => {
-      clearMsg('statusCalidad');
-      calcularCalidadLocal();
-      try{
-        cachedBestRow = await fetchBestTest();
-        renderBestComparison(cachedBestRow);
-      }catch(e){
-        msg('statusCalidad', 'Cálculo listo, pero no se pudo traer la mejor prueba: ' + e.message, false);
-        return;
-      }
-      msg('statusCalidad', 'Cálculo listo.', true);
+          msg('statusCalidad', 'Cálculo listo.', true);
+        }catch(e){
+          msg('statusCalidad', 'Cálculo listo, pero no se pudo traer la mejor prueba.', false);
+        }
+      });
     });
 
     $('btnCompletar').addEventListener('click', async () => {
       clearMsg('statusCalidad');
       const calc = calcularCalidadLocal();
-      try{
-        cachedBestRow = await fetchBestTest();
-        renderBestComparison(cachedBestRow);
-      }catch(_){}
       const items = [
-        ['Número de prueba', $('q_pruebaBuscar').value.trim()],
-        ['MP kg', $('q_mpKg').value],
-        ['PT kg', $('q_ptKg').value],
-        ['Finos kg', $('q_finosKg').value],
-        ['Grano kg', $('q_granoKg').value],
-        ['Humedad MT %', $('q_humedadMT').value],
-        ['Humedad PT %', $('q_humedadPT').value],
-        ['Cumplimiento %', calc.cumplimiento.toFixed(2)],
-        ['M25', $('q_m25').value],
-        ['M30', $('q_m30').value],
-        ['M40', $('q_m40').value],
-        ['M60', $('q_m60').value],
-        ['M100', $('q_m100').value],
-        ['Fondo', $('q_fondo').value]
+        ['Número de prueba', $('q_pruebaBuscar').value.trim()], ['MP kg', $('q_mpKg').value], ['PT kg', $('q_ptKg').value],
+        ['Finos kg', $('q_finosKg').value], ['Grano kg', $('q_granoKg').value], ['Cumplimiento %', calc.cumplimiento.toFixed(2)],
+        ['M25', $('q_m25').value], ['M30', $('q_m30').value], ['M40', $('q_m40').value],
+        ['M60', $('q_m60').value], ['M100', $('q_m100').value], ['Fondo', $('q_fondo').value]
       ];
       openModal('Confirmar calidad final', items, async () => {
         try{
           await postData({
-            action:'completar_calidad_final',
-            prueba:$('q_pruebaBuscar').value.trim(),
-            mpKg:$('q_mpKg').value,
-            ptKg:$('q_ptKg').value,
-            finosKg:$('q_finosKg').value,
-            granoKg:$('q_granoKg').value,
-            humedadMT:$('q_humedadMT').value,
-            humedadPT:$('q_humedadPT').value,
-            finosPct:$('q_finosPct').value,
-            granoPct:$('q_granoPct').value,
-            balanceKg:$('q_balanceKg').value,
-            m25:$('q_m25').value,
-            m30:$('q_m30').value,
-            m40:$('q_m40').value,
-            m60:$('q_m60').value,
-            m100:$('q_m100').value,
-            fondo:$('q_fondo').value,
-            sumaMallas:$('q_sumaMallas').value,
-            cumplimientoPct:$('q_cumplimientoPct').value,
-            desviacionTotal:calc.totalAbs.toFixed(2),
-            analistaCalidad:$('q_analista').value,
-            estadoVisual:$('q_estadoVisual').value,
-            obsCalidad:$('q_obs').value
+            action:'completar_calidad_final', prueba:$('q_pruebaBuscar').value.trim(),
+            mpKg:$('q_mpKg').value, ptKg:$('q_ptKg').value, finosKg:$('q_finosKg').value, granoKg:$('q_granoKg').value,
+            humedadMT:$('q_humedadMT').value, humedadPT:$('q_humedadPT').value, finosPct:$('q_finosPct').value, granoPct:$('q_granoPct').value,
+            balanceKg:$('q_balanceKg').value, m25:$('q_m25').value, m30:$('q_m30').value, m40:$('q_m40').value,
+            m60:$('q_m60').value, m100:$('q_m100').value, fondo:$('q_fondo').value, sumaMallas:$('q_sumaMallas').value,
+            cumplimientoPct:$('q_cumplimientoPct').value, desviacionTotal:calc.totalAbs.toFixed(2),
+            analistaCalidad:$('q_analista').value, estadoVisual:$('q_estadoVisual').value, obsCalidad:$('q_obs').value
           });
           cachedBestRow = await fetchBestTest().catch(() => cachedBestRow);
           renderBestComparison(cachedBestRow);
@@ -643,7 +563,7 @@
     });
 
     $('btnLimpiarProd').addEventListener('click', () => {
-      ['p_prueba','p_producto','p_proveedor','p_operador','p_mol','p_insertos','p_vel','p_apertura','p_cang','p_flujo'].forEach(id => $(id).value = '');
+      ['p_prueba','p_producto','p_proveedor','p_operador','p_criba','p_mol','p_insertos','p_vel','p_apertura','p_cang','p_flujo'].forEach(id => $(id).value = '');
       clearMsg('statusProd');
     });
 
